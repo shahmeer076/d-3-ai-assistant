@@ -5,19 +5,28 @@ import os
 FILE = "chat_history.json"
 
 
+
 def get_history():
 
     if not os.path.exists(FILE):
         return []
 
+
     try:
 
-        with open(FILE, "r", encoding="utf-8") as f:
+        with open(
+            FILE,
+            "r",
+            encoding="utf-8"
+        ) as f:
+
             return json.load(f)
 
-    except json.JSONDecodeError:
+
+    except (json.JSONDecodeError, FileNotFoundError):
 
         return []
+
 
 
 
@@ -25,12 +34,14 @@ def add_message(role, content):
 
     history = get_history()
 
+
     history.append(
         {
             "role": role,
             "content": content
         }
     )
+
 
     with open(
         FILE,

@@ -1,29 +1,36 @@
-import pyttsx3
+from gtts import gTTS
+import tempfile
+import os
 
 
 def speak(text):
 
-    engine = pyttsx3.init()
-
-    engine.setProperty("rate", 150)
-    engine.setProperty("volume", 1.0)
-
-    voices = engine.getProperty("voices")
-
-    for voice in voices:
-        name = voice.name.lower()
-        if "female" in name or "zira" in name or "samantha" in name:
-            engine.setProperty("voice", voice.id)
-            break
-
     text = str(text)
 
-    sentences = text.split(".")
+    try:
 
-    for sentence in sentences:
-        if sentence.strip():
-            engine.say(sentence.strip())
+        tts = gTTS(
+            text=text,
+            lang="en"
+        )
 
-    engine.runAndWait()
 
-    engine.stop()
+        file = tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".mp3"
+        )
+
+
+        tts.save(
+            file.name
+        )
+
+
+        return file.name
+
+
+    except Exception as e:
+
+        print("TTS Error:", e)
+
+        return None

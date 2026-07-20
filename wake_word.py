@@ -6,10 +6,15 @@ def check_wake_word(text):
         "hey ai"
     ]
 
+
     text = text.lower()
 
+
     for word in wake_words:
+
         if word in text:
+
             return True
+
 
     return False
