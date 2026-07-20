@@ -1,19 +1,23 @@
 import os
-from dotenv import load_dotenv
+import streamlit as st
 
 from groq import Groq
+from dotenv import load_dotenv
 from chat_memory import get_history, add_message
 
 
-# Load .env file
 load_dotenv()
 
 
-# Groq API Client
-client = Groq(
-    api_key=os.getenv("GROQ_API_KEY")
-)
+api_key = os.getenv("GROQ_API_KEY")
 
+if not api_key:
+    api_key = st.secrets["GROQ_API_KEY"]
+
+
+client = Groq(
+    api_key=api_key
+)
 
 def ask_ai(prompt):
 
