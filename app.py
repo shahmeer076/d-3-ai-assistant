@@ -61,7 +61,7 @@ unsafe_allow_html=True
 st.title("🤖 D <3 AI Assistant")
 
 st.caption(
-    "Your Personal AI Voice Assistant powered by Groq"
+    "AI Powered Voice and Chat Assistant"
 )
 
 
@@ -179,8 +179,6 @@ with st.sidebar:
 ✨ Features
 
 ✅ AI Chat
-
-✅ Voice Input
 
 ✅ Voice Output
 

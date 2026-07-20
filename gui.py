@@ -16,7 +16,7 @@ ctk.set_default_color_theme("blue")
 
 app = ctk.CTk()
 
-app.title("Meeru's Assistant")
+app.title("AI Voice Assistant")
 app.geometry("1200x750")
 app.configure(fg_color="#F7F9FC")
 
