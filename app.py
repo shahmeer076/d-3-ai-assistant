@@ -1,152 +1,64 @@
 import streamlit as st
-
-from text_to_speech import speak
 from llm import ask_ai
-from commands import run_command
-from memory import save_memory, get_memory
 
 
 st.set_page_config(
-    page_title="Meeru AI Assistant",
+    page_title="D <3 AI Assistant",
     page_icon="🤖",
-    layout="wide"
+    layout="centered"
 )
 
 
-st.title("🤖 Meeru AI Assistant")
+st.title("🤖 D <3 AI Assistant")
+st.caption("Your Personal AI Voice Assistant")
 
 
+# Chat history initialize
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 
-
+# Show old messages
 for message in st.session_state.messages:
 
     with st.chat_message(message["role"]):
-
-        st.markdown(message["content"])
-
+        st.write(message["content"])
 
 
 
-user_input = st.chat_input(
-    "Type your message..."
-)
+# User input
+prompt = st.chat_input("Ask me anything...")
 
 
+if prompt:
 
-if user_input:
-
-
+    # User message
     st.session_state.messages.append(
         {
-            "role": "user",
-            "content": user_input
+            "role":"user",
+            "content":prompt
         }
     )
 
 
     with st.chat_message("user"):
-
-        st.markdown(user_input)
-
-
-
-    text = user_input.lower()
+        st.write(prompt)
 
 
 
-    if "my name is" in text:
+    # AI response
+    with st.chat_message("assistant"):
 
+        with st.spinner("Thinking..."):
 
-        name = text.replace(
-            "my name is",
-            ""
-        ).strip()
+            response = ask_ai(prompt)
 
-
-        save_memory(
-            "name",
-            name
-        )
-
-
-        response = (
-            f"Okay, I will remember your name {name}"
-        )
-
-
-
-    elif (
-        "what is my name" in text
-        or "who am i" in text
-        or "what's my name" in text
-    ):
-
-
-        name = get_memory(
-            "name"
-        )
-
-
-        if name == "I don't remember":
-
-            response = (
-                "I don't know your name yet"
-            )
-
-        else:
-
-            response = (
-                f"Your name is {name}"
-            )
-
-
-
-    else:
-
-
-        command = run_command(
-            user_input
-        )
-
-
-        if command:
-
-            response = command
-
-
-        else:
-
-            response = ask_ai(
-                user_input
-            )
-
+            st.write(response)
 
 
     st.session_state.messages.append(
         {
-            "role": "assistant",
-            "content": response
+            "role":"assistant",
+            "content":response
         }
     )
-
-
-
-    with st.chat_message("assistant"):
-
-        st.markdown(response)
-
-
-        audio_file = speak(
-            response
-        )
-
-
-        if audio_file:
-
-            st.audio(
-                audio_file,
-                format="audio/mp3"
-            )
