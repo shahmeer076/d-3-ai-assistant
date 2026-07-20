@@ -5,23 +5,103 @@ import streamlit.components.v1 as components
 import speech_recognition as sr
 
 
-# Page Setup
+# Page Configuration
 st.set_page_config(
     page_title="D <3 AI Assistant",
     page_icon="🤖",
-    layout="centered"
+    layout="wide"
 )
 
 
-# Title
+# Custom CSS
+st.markdown(
+    """
+    <style>
+
+    .stApp {
+        background-color:#f8fafc;
+    }
+
+
+    h1 {
+        text-align:center;
+        color:#2563eb;
+    }
+
+
+    .stChatMessage {
+
+        border-radius:15px;
+        padding:10px;
+
+    }
+
+
+    section[data-testid="stSidebar"] {
+
+        background-color:#ffffff;
+
+    }
+
+
+    .stButton button {
+
+        width:100%;
+        border-radius:20px;
+        height:40px;
+
+    }
+
+    </style>
+
+    """,
+    unsafe_allow_html=True
+)
+
+
+
+# Header
+
 st.title("🤖 D <3 AI Assistant")
-st.caption("Your Personal AI Voice Assistant")
+
+st.caption(
+    "Your Personal AI Voice Assistant powered by Groq LLM"
+)
+
+
+
+# Session Memory
+
+if "messages" not in st.session_state:
+
+    st.session_state.messages = []
+
 
 
 # Sidebar
+
 with st.sidebar:
 
-    st.header("⚙️ Settings")
+
+    st.title("🤖 D <3 AI")
+
+
+    st.write(
+        "Your intelligent voice companion"
+    )
+
+
+    st.divider()
+
+
+
+    if st.button("➕ New Chat"):
+
+        st.session_state.messages = []
+
+        st.rerun()
+
+
 
     if st.button("🗑 Clear Chat"):
 
@@ -30,19 +110,47 @@ with st.sidebar:
         st.rerun()
 
 
-    st.write("AI Assistant powered by Groq")
+
+    st.divider()
 
 
-# Chat memory
-if "messages" not in st.session_state:
+    st.subheader("✨ Features")
 
-    st.session_state.messages = []
+    st.write(
+        """
+        ✅ AI Chat  
+        ✅ Voice Input  
+        ✅ Voice Output  
+        ✅ Memory System  
+        ✅ Groq LLM  
+        """
+    )
+
+
+    st.divider()
+
+
+    st.subheader("About")
+
+    st.write(
+        """
+        D <3 AI Assistant is an AI
+        powered personal assistant
+        built using:
+
+        • Python
+        • Streamlit
+        • Groq LLM
+        • Speech Recognition
+        """
+    )
 
 
 
-# Show previous messages
+# Previous Chat Messages
 
 for message in st.session_state.messages:
+
 
     with st.chat_message(message["role"]):
 
@@ -50,16 +158,23 @@ for message in st.session_state.messages:
 
 
 
-# Voice Section
 
-st.markdown("## 🎤 Voice Assistant")
+
+# Voice Input
+
+st.subheader("🎤 Voice Assistant")
 
 
 audio = mic_recorder(
-    start_prompt="🎤 Start Recording",
-    stop_prompt="⏹ Stop Recording",
+
+    start_prompt="🎤 Start Speaking",
+
+    stop_prompt="⏹ Stop",
+
     just_once=True,
+
     use_container_width=True
+
 )
 
 
@@ -77,9 +192,14 @@ if audio:
     try:
 
 
-        with open("voice.wav", "wb") as f:
+        with open(
+            "voice.wav",
+            "wb"
+        ) as file:
 
-            f.write(audio["bytes"])
+            file.write(
+                audio["bytes"]
+            )
 
 
 
@@ -87,13 +207,20 @@ if audio:
 
 
 
-        with sr.AudioFile("voice.wav") as source:
+        with sr.AudioFile(
+            "voice.wav"
+        ) as source:
 
-            audio_data = recognizer.record(source)
+
+            audio_data = recognizer.record(
+                source
+            )
 
 
 
-        voice_prompt = recognizer.recognize_google(audio_data)
+        voice_prompt = recognizer.recognize_google(
+            audio_data
+        )
 
 
 
@@ -103,38 +230,42 @@ if audio:
 
 
 
-    except Exception as e:
+    except:
+
 
         st.error(
-            "Sorry, I could not understand your voice."
+            "Voice could not be recognized"
         )
+
+
 
 
 
 # Text Input
 
 text_prompt = st.chat_input(
-    "Ask me anything..."
+    "Type your message..."
 )
 
 
-
-# Choose input source
 
 prompt = voice_prompt or text_prompt
 
 
 
+
+
+# AI Processing
+
 if prompt:
 
 
-    # Save user message
 
     st.session_state.messages.append(
 
         {
-            "role": "user",
-            "content": prompt
+            "role":"user",
+            "content":prompt
         }
 
     )
@@ -147,13 +278,12 @@ if prompt:
 
 
 
-
-    # AI Response
-
     with st.chat_message("assistant"):
 
 
-        with st.spinner("Thinking..."):
+        with st.spinner(
+            "D <3 is thinking..."
+        ):
 
 
             response = ask_ai(prompt)
@@ -164,7 +294,8 @@ if prompt:
 
 
 
-            # Text To Speech
+
+            # Voice Output
 
             components.html(
 
@@ -173,18 +304,19 @@ if prompt:
                 <script>
 
 
-                var msg = new SpeechSynthesisUtterance(
+                let speech = new SpeechSynthesisUtterance(
 
                     `{response}`
 
                 );
 
 
-                msg.lang = "en-US";
+                speech.lang="en-US";
 
 
-                window.speechSynthesis.speak(msg);
-
+                window.speechSynthesis.speak(
+                    speech
+                );
 
 
                 </script>
@@ -198,13 +330,11 @@ if prompt:
 
 
 
-    # Save AI response
-
     st.session_state.messages.append(
 
         {
-            "role": "assistant",
-            "content": response
+            "role":"assistant",
+            "content":response
         }
 
     )
