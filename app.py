@@ -1,6 +1,8 @@
 import streamlit as st
 from llm import ask_ai
+from streamlit_mic_recorder import mic_recorder
 import streamlit.components.v1 as components
+import base64
 
 
 st.set_page_config(
@@ -14,12 +16,12 @@ st.title("🤖 D <3 AI Assistant")
 st.caption("Your Personal AI Voice Assistant")
 
 
-# Chat history
+# Chat memory
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 
-# Show previous chats
+# Previous messages show
 for message in st.session_state.messages:
 
     with st.chat_message(message["role"]):
@@ -27,49 +29,30 @@ for message in st.session_state.messages:
 
 
 
-# Voice Input Button
-st.markdown("### 🎤 Voice Input")
+st.markdown("### 🎤 Speak")
 
 
-voice_html = """
-<script>
-
-function startListening(){
-
-    const recognition = new webkitSpeechRecognition();
-
-    recognition.lang = "en-US";
-
-    recognition.onresult = function(event){
-
-        const text = event.results[0][0].transcript;
-
-        alert("You said: " + text);
-
-    }
-
-    recognition.start();
-
-}
-
-</script>
-
-
-<button onclick="startListening()">
-🎤 Speak
-</button>
-
-"""
-
-
-components.html(
-    voice_html,
-    height=100
+audio = mic_recorder(
+    start_prompt="🎤 Start Recording",
+    stop_prompt="⏹ Stop Recording",
+    just_once=True,
+    use_container_width=True
 )
 
 
+prompt = None
 
-# User Input
+
+if audio:
+
+    st.audio(audio["bytes"])
+
+
+    # Voice input ke liye abhi placeholder
+    st.info("Voice received. Speech-to-text processing add karenge.")
+
+
+
 prompt = st.chat_input("Ask me anything...")
 
 
@@ -77,27 +60,22 @@ prompt = st.chat_input("Ask me anything...")
 if prompt:
 
 
-    # Save user message
     st.session_state.messages.append(
         {
-            "role": "user",
-            "content": prompt
+            "role":"user",
+            "content":prompt
         }
     )
 
 
     with st.chat_message("user"):
-
         st.write(prompt)
 
 
 
-    # AI Response
     with st.chat_message("assistant"):
 
-
         with st.spinner("Thinking..."):
-
 
             response = ask_ai(prompt)
 
@@ -106,21 +84,18 @@ if prompt:
 
 
 
-            # Text to Speech
+            # Browser voice
             components.html(
                 f"""
                 <script>
 
-                let speech = new SpeechSynthesisUtterance(
+                var msg = new SpeechSynthesisUtterance(
                     `{response}`
                 );
 
+                msg.lang="en-US";
 
-                speech.lang = "en-US";
-
-
-                window.speechSynthesis.speak(speech);
-
+                window.speechSynthesis.speak(msg);
 
                 </script>
                 """,
@@ -129,10 +104,9 @@ if prompt:
 
 
 
-    # Save AI response
     st.session_state.messages.append(
         {
-            "role": "assistant",
-            "content": response
+            "role":"assistant",
+            "content":response
         }
     )

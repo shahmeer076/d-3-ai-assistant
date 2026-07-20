@@ -34,3 +34,4 @@ def speak(text):
         print("TTS Error:", e)
 
         return None
+        
