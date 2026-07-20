@@ -3,48 +3,101 @@ import os
 from datetime import datetime
 
 
-FILE_NAME = "chat_history.json"
+FILE = "chat_history.json"
 
 
-def load_history():
 
-    if not os.path.exists(FILE_NAME):
-        return {}
+def load_chats():
+
+    if not os.path.exists(FILE):
+
+        return []
+
 
     try:
-        with open(FILE_NAME, "r") as file:
-            return json.load(file)
+
+        with open(FILE, "r", encoding="utf-8") as f:
+
+            chats = json.load(f)
+
+
+        return chats
+
 
     except:
-        return {}
+
+        return []
 
 
 
-def save_chat(title, messages):
-
-    history = load_history()
-
-    history[title] = messages
 
 
-    with open(FILE_NAME, "w") as file:
-        json.dump(history, file, indent=4)
+def save_chat(messages):
+
+
+    chats = load_chats()
 
 
 
-def get_history():
-
-    return load_history()
+    title = "New Chat"
 
 
+    for msg in messages:
 
-def create_title():
+        if msg["role"] == "user":
 
-    return "Chat " + datetime.now().strftime("%d-%m-%Y %I-%M-%S")
+            title = msg["content"][:30]
+
+            break
 
 
 
-def delete_history():
 
-    with open(FILE_NAME, "w") as file:
-        json.dump({}, file)
+    chat = {
+
+        "title": title,
+
+        "time": str(datetime.now()),
+
+        "messages": messages
+
+    }
+
+
+
+
+    chats.append(chat)
+
+
+
+    with open(
+        FILE,
+        "w",
+        encoding="utf-8"
+    ) as f:
+
+
+        json.dump(
+            chats,
+            f,
+            indent=4,
+            ensure_ascii=False
+        )
+
+
+
+
+
+def delete_chats():
+
+    with open(
+        FILE,
+        "w",
+        encoding="utf-8"
+    ) as f:
+
+
+        json.dump(
+            [],
+            f
+        )

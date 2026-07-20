@@ -9,6 +9,7 @@ FILE = "chat_history.json"
 def get_history():
 
     if not os.path.exists(FILE):
+
         return []
 
 
@@ -20,38 +21,52 @@ def get_history():
             encoding="utf-8"
         ) as f:
 
-            return json.load(f)
+            chats = json.load(f)
 
 
-    except (json.JSONDecodeError, FileNotFoundError):
+
+        history = []
+
+
+        for chat in chats:
+
+
+            messages = chat.get(
+                "messages",
+                []
+            )
+
+
+            for msg in messages:
+
+
+                if (
+                    "role" in msg 
+                    and 
+                    "content" in msg
+                ):
+
+                    history.append(
+                        {
+                            "role":msg["role"],
+                            "content":msg["content"]
+                        }
+                    )
+
+
+        return history
+
+
+
+    except:
 
         return []
 
 
 
 
+
 def add_message(role, content):
 
-    history = get_history()
 
-
-    history.append(
-        {
-            "role": role,
-            "content": content
-        }
-    )
-
-
-    with open(
-        FILE,
-        "w",
-        encoding="utf-8"
-    ) as f:
-
-        json.dump(
-            history,
-            f,
-            indent=4,
-            ensure_ascii=False
-        )
+    return

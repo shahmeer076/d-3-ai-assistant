@@ -1,11 +1,20 @@
 import streamlit as st
 from llm import ask_ai
+from commands import run_command
+
 from streamlit_mic_recorder import mic_recorder
 import streamlit.components.v1 as components
+
 import speech_recognition as sr
+from pydub import AudioSegment
+import io
+
+from chat_history import load_chats, save_chat, delete_chats
 
 
-# Page Configuration
+
+# PAGE CONFIG
+
 st.set_page_config(
     page_title="D <3 AI Assistant",
     page_icon="🤖",
@@ -13,72 +22,63 @@ st.set_page_config(
 )
 
 
-# Custom CSS
+
+# CSS
+
 st.markdown(
-    """
-    <style>
+"""
+<style>
 
-    .stApp {
-        background-color:#f8fafc;
-    }
+.stApp{
+    background:#f8fafc;
+}
 
+h1{
+    text-align:center;
+    color:#2563eb;
+}
 
-    h1 {
-        text-align:center;
-        color:#2563eb;
-    }
+section[data-testid="stSidebar"]{
+    background:white;
+}
 
+.stButton button{
+    width:100%;
+    border-radius:20px;
+}
 
-    .stChatMessage {
-
-        border-radius:15px;
-        padding:10px;
-
-    }
-
-
-    section[data-testid="stSidebar"] {
-
-        background-color:#ffffff;
-
-    }
-
-
-    .stButton button {
-
-        width:100%;
-        border-radius:20px;
-        height:40px;
-
-    }
-
-    </style>
-
-    """,
-    unsafe_allow_html=True
+</style>
+""",
+unsafe_allow_html=True
 )
 
 
 
-# Header
+
+
+# HEADER
 
 st.title("🤖 D <3 AI Assistant")
 
 st.caption(
-    "Your Personal AI Voice Assistant powered by Groq LLM"
+    "Your Personal AI Voice Assistant powered by Groq"
 )
 
 
 
-# Session Memory
+
+
+# SESSION
 
 if "messages" not in st.session_state:
 
-    st.session_state.messages = []
+    st.session_state.messages=[]
 
 
 
-# Sidebar
+
+
+# SIDEBAR
 
 with st.sidebar:
 
@@ -87,7 +87,7 @@ with st.sidebar:
 
 
     st.write(
-        "Your intelligent voice companion"
+        "Your Intelligent Assistant"
     )
 
 
@@ -97,79 +97,141 @@ with st.sidebar:
 
     if st.button("➕ New Chat"):
 
-        st.session_state.messages = []
+
+        if st.session_state.messages:
+
+            save_chat(
+                st.session_state.messages
+            )
+
+
+        st.session_state.messages=[]
 
         st.rerun()
 
 
 
-    if st.button("🗑 Clear Chat"):
 
-        st.session_state.messages = []
+
+    if st.button("🗑 Clear Chats"):
+
+
+        st.session_state.messages=[]
+
+        delete_chats()
 
         st.rerun()
+
 
 
 
     st.divider()
 
 
-    st.subheader("✨ Features")
 
-    st.write(
-        """
-        ✅ AI Chat  
-        ✅ Voice Input  
-        ✅ Voice Output  
-        ✅ Memory System  
-        ✅ Groq LLM  
-        """
-    )
+    st.subheader("📚 History")
+
+
+    chats=load_chats()
+
+
+
+    if chats:
+
+
+        for i,chat in enumerate(chats):
+
+
+            title=chat.get(
+                "title",
+                "Chat"
+            )
+
+
+            if st.button(
+                title,
+                key=i
+            ):
+
+
+                st.session_state.messages = chat.get(
+                    "messages",
+                    []
+                )
+
+
+                st.rerun()
+
+
+    else:
+
+        st.info(
+            "No chats saved"
+        )
+
 
 
     st.divider()
 
 
-    st.subheader("About")
-
     st.write(
-        """
-        D <3 AI Assistant is an AI
-        powered personal assistant
-        built using:
+"""
+✨ Features
 
-        • Python
-        • Streamlit
-        • Groq LLM
-        • Speech Recognition
-        """
+✅ AI Chat
+
+✅ Voice Input
+
+✅ Voice Output
+
+✅ Memory
+
+✅ Google Commands
+
+✅ YouTube Commands
+
+"""
     )
 
 
 
-# Previous Chat Messages
-
-for message in st.session_state.messages:
-
-
-    with st.chat_message(message["role"]):
-
-        st.write(message["content"])
 
 
 
 
+# SHOW OLD CHAT
 
-# Voice Input
+
+for msg in st.session_state.messages:
+
+
+    with st.chat_message(
+        msg["role"]
+    ):
+
+        st.write(
+            msg["content"]
+        )
+
+
+
+
+
+
+
+
+# VOICE INPUT
+
 
 st.subheader("🎤 Voice Assistant")
+
 
 
 audio = mic_recorder(
 
     start_prompt="🎤 Start Speaking",
 
-    stop_prompt="⏹ Stop",
+    stop_prompt="⏹ Stop Recording",
 
     just_once=True,
 
@@ -179,31 +241,43 @@ audio = mic_recorder(
 
 
 
-voice_prompt = None
+voice_text=None
+
 
 
 
 if audio:
 
 
-    st.audio(audio["bytes"])
+    st.audio(
+        audio["bytes"],
+        format="audio/wav"
+    )
 
 
     try:
 
 
-        with open(
-            "voice.wav",
-            "wb"
-        ) as file:
-
-            file.write(
-                audio["bytes"]
-            )
-
-
-
         recognizer = sr.Recognizer()
+
+
+
+        audio_file = io.BytesIO(
+            audio["bytes"]
+        )
+
+
+
+        sound = AudioSegment.from_file(
+            audio_file
+        )
+
+
+
+        sound.export(
+            "voice.wav",
+            format="wav"
+        )
 
 
 
@@ -218,44 +292,50 @@ if audio:
 
 
 
-        voice_prompt = recognizer.recognize_google(
+        voice_text = recognizer.recognize_google(
             audio_data
         )
 
 
 
         st.success(
-            f"You said: {voice_prompt}"
+            "You said: " + voice_text
         )
 
 
 
-    except:
+    except Exception as e:
 
 
         st.error(
-            "Voice could not be recognized"
+            f"Voice Error: {e}"
         )
 
 
 
 
 
-# Text Input
 
-text_prompt = st.chat_input(
+
+# TEXT INPUT
+
+
+text_input = st.chat_input(
     "Type your message..."
 )
 
 
 
-prompt = voice_prompt or text_prompt
+prompt = voice_text or text_input
 
 
 
 
 
-# AI Processing
+
+
+# PROCESS
+
 
 if prompt:
 
@@ -278,6 +358,8 @@ if prompt:
 
 
 
+
+
     with st.chat_message("assistant"):
 
 
@@ -286,7 +368,27 @@ if prompt:
         ):
 
 
-            response = ask_ai(prompt)
+
+            command = run_command(
+                prompt
+            )
+
+
+
+            if command:
+
+
+                response = command
+
+
+            else:
+
+
+                response = ask_ai(
+                    prompt
+                )
+
+
 
 
 
@@ -295,37 +397,40 @@ if prompt:
 
 
 
-            # Voice Output
+
+
+            # TEXT TO SPEECH
+
 
             components.html(
 
-                f"""
+f"""
 
-                <script>
+<script>
 
-
-                let speech = new SpeechSynthesisUtterance(
-
-                    `{response}`
-
-                );
+let speech = new SpeechSynthesisUtterance(
+`{response}`
+);
 
 
-                speech.lang="en-US";
+speech.lang="en-US";
 
 
-                window.speechSynthesis.speak(
-                    speech
-                );
+window.speechSynthesis.speak(
+speech
+);
 
 
-                </script>
+</script>
 
-                """,
+""",
 
-                height=0
+height=0
 
-            )
+)
+
+
+
 
 
 
@@ -337,4 +442,10 @@ if prompt:
             "content":response
         }
 
+    )
+
+
+
+    save_chat(
+        st.session_state.messages
     )

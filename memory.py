@@ -9,6 +9,7 @@ FILE = "memory.json"
 def load_memory():
 
     if not os.path.exists(FILE):
+
         return {}
 
 
@@ -23,19 +24,22 @@ def load_memory():
             return json.load(f)
 
 
-    except (json.JSONDecodeError, FileNotFoundError):
+    except:
 
         return {}
 
 
 
 
+
 def save_memory(key, value):
+
 
     memory = load_memory()
 
 
     memory[key] = value
+
 
 
     with open(
@@ -44,22 +48,17 @@ def save_memory(key, value):
         encoding="utf-8"
     ) as f:
 
+
         json.dump(
             memory,
             f,
-            indent=4,
-            ensure_ascii=False
+            indent=4
         )
 
 
 
 
-def get_memory(key):
 
-    memory = load_memory()
+def get_memory():
 
-
-    return memory.get(
-        key,
-        "I don't remember"
-    )
+    return load_memory()
