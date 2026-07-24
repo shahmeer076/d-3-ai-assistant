@@ -11,7 +11,7 @@ st.set_page_config(
 st.title("🤖 D <3 AI")
 
 
-st.write("AI Voice and Chat Assistant")
+st.write("AI Assistant")
 
 
 message = st.chat_input(

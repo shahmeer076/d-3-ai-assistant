@@ -19,22 +19,68 @@ st.set_page_config(
 st.markdown("""
 <style>
 
+/* FONT FIX */
+
+.stApp,
+.stApp p,
+.stApp span,
+.stApp label,
+.stApp input,
+.stApp textarea,
+.stMarkdown,
+.stButton button {
+
+    font-family:"Berlin Sans FB", sans-serif !important;
+    font-weight:normal !important;
+
+}
+
+
 .stApp{
     background:#ffffff;
 }
 
+
+/* SIDEBAR */
 
 section[data-testid="stSidebar"]{
     background:#0057B8;
 }
 
 
-section[data-testid="stSidebar"] *{
+section[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] span,
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3,
+section[data-testid="stSidebar"] button{
+
     color:white !important;
+    font-family:"Berlin Sans FB", sans-serif !important;
+    font-weight:normal !important;
+
 }
 
 
-/* Buttons */
+/* KEEP STREAMLIT SIDEBAR ARROWS */
+
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapsedControl"]{
+
+    font-family:initial !important;
+
+}
+
+
+[data-testid="stSidebarCollapseButton"] svg,
+[data-testid="stSidebarCollapsedControl"] svg{
+
+    display:block !important;
+
+}
+
+
+/* BUTTONS */
 
 .stButton button{
 
@@ -44,18 +90,16 @@ section[data-testid="stSidebar"] *{
     #E31E24
     );
 
-    color:white;
+    color:white !important;
 
     border:none;
 
     border-radius:25px;
 
-    font-weight:bold;
-
 }
 
 
-/* Chat Input */
+/* CHAT INPUT */
 
 div[data-testid="stChatInput"]{
 
@@ -71,13 +115,12 @@ div[data-testid="stChatInput"]{
 
 div[data-testid="stChatInput"] textarea{
 
-    border:none !important;
+    font-family:"Berlin Sans FB", sans-serif !important;
 
 }
 
 
-
-/* Messages */
+/* CHAT MESSAGE */
 
 div[data-testid="stChatMessage"]{
 
@@ -87,11 +130,38 @@ div[data-testid="stChatMessage"]{
 
 }
 
+/* RESTORE STREAMLIT SIDEBAR ARROW ICON */
+
+[data-testid="stSidebarCollapseButton"] svg {
+    display: inline-block !important;
+    visibility: visible !important;
+}
+
+
+[data-testid="stSidebarCollapseButton"] span {
+    font-size: 0 !important;
+}
+
+
+[data-testid="stSidebarCollapseButton"] span svg {
+    width: 24px !important;
+    height: 24px !important;
+}
+
+
+[data-testid="stSidebarCollapsedControl"] svg {
+    display: inline-block !important;
+    visibility: visible !important;
+}
+
+
+[data-testid="stSidebarCollapsedControl"] span {
+    font-size: 0 !important;
+}
 
 </style>
 """,
 unsafe_allow_html=True)
-
 
 
 # ================= HEADER =================
@@ -104,24 +174,30 @@ padding:30px;
 border-radius:25px;
 text-align:center;
 color:white;
+font-family:'Berlin Sans FB',sans-serif;
 ">
 
-<h1 style="color:white;">
-🤖 D <3 AI
+
+<h1 style="
+color:white;
+font-weight:normal;
+">
+Where should we begin ?
 </h1>
 
-<p>
-Your Personal AI Voice Assistant
+
+<p style="
+font-weight:normal;
+">
+... D <3 is ready ...
 </p>
 
-<b>
-🟢 ONLINE
-</b>
 
 </div>
 
 """,
 unsafe_allow_html=True)
+
 
 
 
@@ -134,6 +210,7 @@ if "messages" not in st.session_state:
 
 
 
+
 # ================= SIDEBAR =================
 
 
@@ -141,15 +218,25 @@ with st.sidebar:
 
 
     st.markdown("""
-<h1 style="color:white;">
-🤖 D <3 AI
+<h1 style="
+color:white;
+font-weight:normal;
+">
+D <3 AI
 </h1>
 
-<p>
-Intelligent Voice Assistant
+
+<p style="
+font-weight:normal;
+">
+Your personal AI Assistant
+
+
 </p>
+
 """,
 unsafe_allow_html=True)
+
 
 
 
@@ -186,6 +273,7 @@ unsafe_allow_html=True)
     chats=load_chats()
 
 
+
     for i,chat in enumerate(chats):
 
 
@@ -193,6 +281,7 @@ unsafe_allow_html=True)
             "title",
             f"Chat {i+1}"
         )
+
 
 
         if st.button(
@@ -206,11 +295,14 @@ unsafe_allow_html=True)
                 []
             )
 
+
             st.rerun()
 
 
 
+
     st.divider()
+
 
 
     st.write("""
@@ -224,6 +316,7 @@ unsafe_allow_html=True)
 
 ⚡ Fast Response
 """)
+
 
 
 
@@ -248,9 +341,11 @@ for msg in st.session_state.messages:
         avatar=avatar
     ):
 
+
         st.write(
             msg["content"]
         )
+
 
 
 
@@ -266,11 +361,11 @@ prompt = st.chat_input(
 
 
 
+
 # ================= AI =================
 
 
 if prompt:
-
 
 
     st.session_state.messages.append(
@@ -286,6 +381,7 @@ if prompt:
         "user",
         avatar="👤"
     ):
+
 
         st.write(prompt)
 
@@ -347,7 +443,9 @@ Reply naturally.
 
 
 
-            # Text To Speech
+
+            # TEXT TO SPEECH
+
 
             safe=response.replace(
                 "`",
@@ -355,10 +453,12 @@ Reply naturally.
             )
 
 
+
             components.html(
 f"""
 
 <script>
+
 
 let speech =
 new SpeechSynthesisUtterance(
@@ -368,7 +468,9 @@ new SpeechSynthesisUtterance(
 
 speech.lang="en-US";
 
+
 speech.rate=0.9;
+
 
 
 window.speechSynthesis.speak(
@@ -376,11 +478,15 @@ speech
 );
 
 
+
 </script>
+
 
 """,
 height=0
 )
+
+
 
 
 
@@ -406,12 +512,15 @@ height=0
 
 
 
+
+
     st.session_state.messages.append(
         {
             "role":"assistant",
             "content":response
         }
     )
+
 
 
 
