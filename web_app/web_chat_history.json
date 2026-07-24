@@ -74,5 +74,41 @@
             "sender": "AI",
             "message": "The current time is 03:44 PM"
         }
+    ],
+    "tell me about the history of P...": [
+        {
+            "sender": "You",
+            "message": "tell me about the history of Pepsi company"
+        },
+        {
+            "sender": "AI",
+            "message": "The history of Pepsi company dates back to the late 19th century. It was founded in 1893 by Caleb Bradham, a pharmacist, in North Carolina, USA. At that time, it was known as \"Brad's Drink\", a mixture of carbonated water, sugar, vanilla, and \"rare oils\". \n\nIn 1898, Bradham renamed the drink \"Pepsi-Cola\".\n\nNow, let's talk a little bit more about this. Caleb Bradham was a entrepreneur and a clever businessman who had created many other products. He was inspired by a Spanish drink called \"Xixa\". Bradham had seen Xixa on his trips to Europe. So he came up with his own formula that eventually became Pepsi.\n\nIn the early 1900s, the popularity of Pepsi grew rapidly across America. \n\nPepsi went through many hands, mergers and splits. In 1965, it was sold to two major shareholders who took Pepsi to new heights. Under their leadership, Pepsi expanded globally.\n\nToday, Pepsi is one of the biggest food and beverage companies worldwide. They have many brands like Mountain Dew, Gatorade, and Tropicana."
+        },
+        {
+            "sender": "You",
+            "message": "ok stop"
+        },
+        {
+            "sender": "AI",
+            "message": "Okay, I'll stop. Bilkul."
+        }
+    ],
+    "hello ai": [
+        {
+            "sender": "You",
+            "message": "hello ai"
+        },
+        {
+            "sender": "AI",
+            "message": "hello, how can i assist you today?"
+        },
+        {
+            "sender": "You",
+            "message": "my name is shahmeer"
+        },
+        {
+            "sender": "AI",
+            "message": "I will remember your name shahmeer"
+        }
     ]
 }

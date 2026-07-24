@@ -1,0 +1,27 @@
+/* Hide Streamlit Default UI */
+
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+header {
+    visibility: hidden;
+}
+
+/* Remove top padding */
+
+.block-container {
+    padding-top: 1rem;
+    padding-bottom: 0rem;
+}
+
+/* Full Page */
+
+.stApp {
+    width: 100%;
+    min-height: 100vh;
+}

@@ -1,74 +1,132 @@
 import streamlit as st
 from llm import ask_ai
 from commands import run_command
-
-from streamlit_mic_recorder import mic_recorder
 import streamlit.components.v1 as components
 
-import speech_recognition as sr
-from pydub import AudioSegment
-import io
-
 from chat_history import load_chats, save_chat, delete_chats
+from memory import get_memory, add_memory
 
-
-
-# PAGE CONFIG
 
 st.set_page_config(
-    page_title="D <3 AI Assistant",
+    page_title="D <3 AI",
     page_icon="🤖",
     layout="wide"
 )
 
 
+# ================= CSS =================
 
-# CSS
-
-st.markdown(
-"""
+st.markdown("""
 <style>
 
 .stApp{
-    background:#f8fafc;
+    background:#ffffff;
 }
 
-h1{
-    text-align:center;
-    color:#2563eb;
-}
 
 section[data-testid="stSidebar"]{
-    background:white;
+    background:#0057B8;
 }
 
-.stButton button{
-    width:100%;
-    border-radius:20px;
+
+section[data-testid="stSidebar"] *{
+    color:white !important;
 }
+
+
+/* Buttons */
+
+.stButton button{
+
+    background:linear-gradient(
+    135deg,
+    #0057B8,
+    #E31E24
+    );
+
+    color:white;
+
+    border:none;
+
+    border-radius:25px;
+
+    font-weight:bold;
+
+}
+
+
+/* Chat Input */
+
+div[data-testid="stChatInput"]{
+
+    border-radius:30px !important;
+
+    background:white !important;
+
+    box-shadow:
+    0px 5px 20px rgba(0,0,0,0.15);
+
+}
+
+
+div[data-testid="stChatInput"] textarea{
+
+    border:none !important;
+
+}
+
+
+
+/* Messages */
+
+div[data-testid="stChatMessage"]{
+
+    border-radius:20px;
+
+    padding:15px;
+
+}
+
 
 </style>
 """,
-unsafe_allow_html=True
-)
+unsafe_allow_html=True)
 
 
 
+# ================= HEADER =================
 
 
-# HEADER
+st.markdown("""
+<div style="
+background:linear-gradient(135deg,#0057B8,#E31E24);
+padding:30px;
+border-radius:25px;
+text-align:center;
+color:white;
+">
 
-st.title("🤖 D <3 AI Assistant")
+<h1 style="color:white;">
+🤖 D <3 AI
+</h1>
 
-st.caption(
-    "AI Powered Voice and Chat Assistant"
-)
+<p>
+Your Personal AI Voice Assistant
+</p>
+
+<b>
+🟢 ONLINE
+</b>
+
+</div>
+
+""",
+unsafe_allow_html=True)
 
 
 
+# ================= SESSION =================
 
-
-# SESSION
 
 if "messages" not in st.session_state:
 
@@ -76,22 +134,22 @@ if "messages" not in st.session_state:
 
 
 
+# ================= SIDEBAR =================
 
-
-# SIDEBAR
 
 with st.sidebar:
 
 
-    st.title("🤖 D <3 AI")
+    st.markdown("""
+<h1 style="color:white;">
+🤖 D <3 AI
+</h1>
 
-
-    st.write(
-        "Your Intelligent Assistant"
-    )
-
-
-    st.divider()
+<p>
+Intelligent Voice Assistant
+</p>
+""",
+unsafe_allow_html=True)
 
 
 
@@ -111,100 +169,83 @@ with st.sidebar:
 
 
 
+    if st.button("🗑 Delete History"):
 
-
-    if st.button("🗑 Clear Chats"):
-
-
-        st.session_state.messages=[]
 
         delete_chats()
+
+        st.session_state.messages=[]
 
         st.rerun()
 
 
 
-
-    st.divider()
-
-
-
-    st.subheader("📚 History")
+    st.subheader("📚 Chat History")
 
 
     chats=load_chats()
 
 
-
-    if chats:
-
-
-        for i,chat in enumerate(chats):
+    for i,chat in enumerate(chats):
 
 
-            title=chat.get(
-                "title",
-                "Chat"
+        title=chat.get(
+            "title",
+            f"Chat {i+1}"
+        )
+
+
+        if st.button(
+            title,
+            key=f"chat_{i}"
+        ):
+
+
+            st.session_state.messages = chat.get(
+                "messages",
+                []
             )
 
-
-            if st.button(
-                title,
-                key=i
-            ):
-
-
-                st.session_state.messages = chat.get(
-                    "messages",
-                    []
-                )
-
-
-                st.rerun()
-
-
-    else:
-
-        st.info(
-            "No chats saved"
-        )
+            st.rerun()
 
 
 
     st.divider()
 
 
-    st.write(
-"""
+    st.write("""
 ✨ Features
 
-✅ AI Chat
+🤖 AI Intelligence
 
-✅ Voice Output
+💾 Memory
 
-✅ Memory
+🌐 Commands
 
-✅ Google Commands
-
-✅ YouTube Commands
-
-"""
-    )
+⚡ Fast Response
+""")
 
 
 
 
 
-
-
-# SHOW OLD CHAT
+# ================= CHAT DISPLAY =================
 
 
 for msg in st.session_state.messages:
 
 
+    avatar = (
+        "👤"
+        if msg["role"]=="user"
+        else
+        "🤖"
+    )
+
+
     with st.chat_message(
-        msg["role"]
+        msg["role"],
+        avatar=avatar
     ):
 
         st.write(
@@ -215,124 +256,17 @@ for msg in st.session_state.messages:
 
 
 
+# ================= INPUT =================
 
 
-
-# VOICE INPUT
-
-
-st.subheader("🎤 Voice Assistant")
-
-
-
-audio = mic_recorder(
-
-    start_prompt="🎤 Start Speaking",
-
-    stop_prompt="⏹ Stop Recording",
-
-    just_once=True,
-
-    use_container_width=True
-
+prompt = st.chat_input(
+    "Ask D <3 anything..."
 )
 
 
 
-voice_text=None
 
-
-
-
-if audio:
-
-
-    st.audio(
-        audio["bytes"],
-        format="audio/wav"
-    )
-
-
-    try:
-
-
-        recognizer = sr.Recognizer()
-
-
-
-        audio_file = io.BytesIO(
-            audio["bytes"]
-        )
-
-
-
-        sound = AudioSegment.from_file(
-            audio_file
-        )
-
-
-
-        sound.export(
-            "voice.wav",
-            format="wav"
-        )
-
-
-
-        with sr.AudioFile(
-            "voice.wav"
-        ) as source:
-
-
-            audio_data = recognizer.record(
-                source
-            )
-
-
-
-        voice_text = recognizer.recognize_google(
-            audio_data
-        )
-
-
-
-        st.success(
-            "You said: " + voice_text
-        )
-
-
-
-    except Exception as e:
-
-
-        st.error(
-            f"Voice Error: {e}"
-        )
-
-
-
-
-
-
-
-# TEXT INPUT
-
-
-text_input = st.chat_input(
-    "Type your message..."
-)
-
-
-
-prompt = voice_text or text_input
-
-
-
-
-
-
-
-# PROCESS
+# ================= AI =================
 
 
 if prompt:
@@ -340,17 +274,18 @@ if prompt:
 
 
     st.session_state.messages.append(
-
         {
             "role":"user",
             "content":prompt
         }
-
     )
 
 
 
-    with st.chat_message("user"):
+    with st.chat_message(
+        "user",
+        avatar="👤"
+    ):
 
         st.write(prompt)
 
@@ -358,23 +293,23 @@ if prompt:
 
 
 
-    with st.chat_message("assistant"):
+    with st.chat_message(
+        "assistant",
+        avatar="🤖"
+    ):
 
 
         with st.spinner(
-            "D <3 is thinking..."
+            "🤖 D <3 is thinking..."
         ):
 
 
 
-            command = run_command(
-                prompt
-            )
+            command = run_command(prompt)
 
 
 
             if command:
-
 
                 response = command
 
@@ -382,11 +317,27 @@ if prompt:
             else:
 
 
+                memory = get_memory()
+
+
+
                 response = ask_ai(
-                    prompt
+f"""
+You are D <3 AI Assistant.
+
+User Memory:
+
+{memory}
+
+
+User Message:
+
+{prompt}
+
+
+Reply naturally.
+"""
                 )
-
-
 
 
 
@@ -396,22 +347,28 @@ if prompt:
 
 
 
+            # Text To Speech
 
-            # TEXT TO SPEECH
+            safe=response.replace(
+                "`",
+                ""
+            )
 
 
             components.html(
-
 f"""
 
 <script>
 
-let speech = new SpeechSynthesisUtterance(
-`{response}`
+let speech =
+new SpeechSynthesisUtterance(
+`{safe}`
 );
 
 
 speech.lang="en-US";
+
+speech.rate=0.9;
 
 
 window.speechSynthesis.speak(
@@ -422,24 +379,38 @@ speech
 </script>
 
 """,
-
 height=0
-
 )
 
 
 
 
+    # MEMORY SAVE
+
+
+    if "my name is" in prompt.lower():
+
+
+        name = prompt.lower().replace(
+            "my name is",
+            ""
+        ).strip()
+
+
+
+        add_memory(
+            "name",
+            name
+        )
+
 
 
 
     st.session_state.messages.append(
-
         {
             "role":"assistant",
             "content":response
         }
-
     )
 
 
